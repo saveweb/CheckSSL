@@ -1,6 +1,6 @@
 mkdir ./tmp -p
 
-curl https://${1} -v -s -l -I -m 10 2> ./tmp/ca.info
+curl https://${1} -k -v -s -l 2> ./tmp/ca.info
 
 cat ./tmp/ca.info | grep 'start date: ' > ./tmp/${1}.info
 cat ./tmp/ca.info | grep 'expire date: ' >> ./tmp/${1}.info
@@ -39,13 +39,12 @@ echo '"issuer": "'$issuer'",' >> ./tmp/${1}.json
 if [ $expirestamp \< $nowstamp ]; then
     echo '"status": "Expired",' >> ./tmp/${1}.json
     echo '"statuscolor": "error",' >> ./tmp/${1}.json
-elif [ $expireday -le 7 ]; then
+elif [ $expireday \< 10 ]; then
     echo '"status": "Soon Expired",' >> ./tmp/${1}.json
     echo '"statuscolor": "warning",' >> ./tmp/${1}.json
 elif [ $status = "ok." ]; then
-    echo ${1} OK
-    rm ./tmp/${1}.json
-    exit 0
+    echo '"status": "Valid",' >> ./tmp/${1}.json
+    echo '"statuscolor": "success",' >> ./tmp/${1}.json
 else
     echo '"status": "Invalid",' >> ./tmp/${1}.json
     echo '"statuscolor": "error",' >> ./tmp/${1}.json
